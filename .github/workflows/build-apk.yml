@@ -1,55 +1,23 @@
+name: Build CargoFix APK
 
-name: Build Android APK
-
-"on":
+on:
   workflow_dispatch:
-  push:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Find ZIP
-        run: |
-          ZIP_FILE=$(find . -maxdepth 2 -type f -iname '*.zip' | head -n 1)
-          if [ -z "$ZIP_FILE" ]; then
-            echo "ZIP archive not found"
-            find . -maxdepth 3 -type f
-            exit 1
-          fi
-          echo "Found: $ZIP_FILE"
-          mkdir extracted
-          unzip "$ZIP_FILE" -d extracted
-
-      - name: Find project
-        run: |
-          PROJECT_DIR=$(find extracted -name settings.gradle -printf '%h\n' | head -n 1)
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "Project not found"
-            exit 1
-          fi
-          cp -R "$PROJECT_DIR"/. .
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: firebelley/godot-export@v6
         with:
-          distribution: temurin
-          java-version: '17'
+          godot_version: 4.3
+          export_type: Android
+          project_path: .
+          export_path: build/CargoFix.apk
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: actions/upload-artifact@v4
         with:
-          gradle-version: '8.9'
-
-      - name: Build APK
-        run: gradle assembleDebug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Master-CRM-APK
-          path: app/build/outputs/apk/debug/*.apk
+          name: CargoFix-APK
+          path: build/CargoFix.apk
+          
