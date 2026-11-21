@@ -6,18 +6,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: firebelley/godot-export@v6
-        with:
-          godot_version: 4.3
-          export_type: Android
-          project_path: .
-          export_path: build/CargoFix.apk
+      - name: Export APK
+        run: |
+          mkdir -p build
+          godot --headless --editor --path . --quit
+          godot --headless --path . --export-debug "Android" build/CargoFix.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: CargoFix-APK
           path: build/CargoFix.apk
-          
+         
